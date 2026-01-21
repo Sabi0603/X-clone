@@ -1,0 +1,16 @@
+{
+  "name": "xclone",
+  "version": "1.0.0",
+  "private": true,
+  "type": "commonjs",
+  "scripts": {
+    "install:client": "npm install --prefix client",
+    "install:server": "npm install --prefix server",
+
+    "build:client": "npm run build --prefix client",
+
+    "build": "npm run install:client && npm run install:server && npm run build:client",
+
+    "start": "npm start --prefix server"
+  }
+}
