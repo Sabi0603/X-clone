@@ -1,126 +1,142 @@
-import { useEffect, useState } from "react";
-import useUpdateUserProfile from "../../hooks/useUpdateUserProfile";
+import { useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
+import LoadingSpinner from "../../components/common/LoadingSpinner";
+import userUpdateUserProfile from "../../hooks/useUpdateUserProfile.jsx";
 
-const EditProfileModal = ({ authUser }) => {
-	const [formData, setFormData] = useState({
-		fullName: "",
-		username: "",
-		email: "",
-		bio: "",
-		link: "",
-		newPassword: "",
-		currentPassword: "",
-	});
+const EditProfileModal = () => {
+    const queryClient = useQueryClient();
+    const authUser = queryClient.getQueryData(["authUser"]);
 
-	const { updateProfile, isUpdatingProfile } = useUpdateUserProfile();
+    const [formData, setFormData] = useState({
+        fullName: "",
+        username: "",
+        email: "",
+        bio: "",
+        link: "",
+        newPassword: "",
+        currentPassword: "",
+    });
 
-	const handleInputChange = (e) => {
-		setFormData({ ...formData, [e.target.name]: e.target.value });
-	};
+    const {updateUserProfile, isUpdatingProfile} = userUpdateUserProfile();
 
-	useEffect(() => {
-		if (authUser) {
-			setFormData({
-				fullName: authUser.fullName,
-				username: authUser.username,
-				email: authUser.email,
-				bio: authUser.bio,
-				link: authUser.link,
-				newPassword: "",
-				currentPassword: "",
-			});
-		}
-	}, [authUser]);
+    const handleInputChange = (e) => {
+        setFormData({ ...formData, [e.target.name]: e.target.value });
+    };
 
-	return (
-		<>
-			<button
-				className='btn btn-outline rounded-full btn-sm'
-				onClick={() => document.getElementById("edit_profile_modal").showModal()}
-			>
-				Edit profile
-			</button>
-			<dialog id='edit_profile_modal' className='modal'>
-				<div className='modal-box border rounded-md border-gray-700 shadow-md'>
-					<h3 className='font-bold text-lg my-3'>Update Profile</h3>
-					<form
-						className='flex flex-col gap-4'
-						onSubmit={(e) => {
-							e.preventDefault();
-							updateProfile(formData);
-						}}
-					>
-						<div className='flex flex-wrap gap-2'>
-							<input
-								type='text'
-								placeholder='Full Name'
-								className='flex-1 input border border-gray-700 rounded p-2 input-md'
-								value={formData.fullName}
-								name='fullName'
-								onChange={handleInputChange}
-							/>
-							<input
-								type='text'
-								placeholder='Username'
-								className='flex-1 input border border-gray-700 rounded p-2 input-md'
-								value={formData.username}
-								name='username'
-								onChange={handleInputChange}
-							/>
-						</div>
-						<div className='flex flex-wrap gap-2'>
-							<input
-								type='email'
-								placeholder='Email'
-								className='flex-1 input border border-gray-700 rounded p-2 input-md'
-								value={formData.email}
-								name='email'
-								onChange={handleInputChange}
-							/>
-							<textarea
-								placeholder='Bio'
-								className='flex-1 input border border-gray-700 rounded p-2 input-md'
-								value={formData.bio}
-								name='bio'
-								onChange={handleInputChange}
-							/>
-						</div>
-						<div className='flex flex-wrap gap-2'>
-							<input
-								type='password'
-								placeholder='Current Password'
-								className='flex-1 input border border-gray-700 rounded p-2 input-md'
-								value={formData.currentPassword}
-								name='currentPassword'
-								onChange={handleInputChange}
-							/>
-							<input
-								type='password'
-								placeholder='New Password'
-								className='flex-1 input border border-gray-700 rounded p-2 input-md'
-								value={formData.newPassword}
-								name='newPassword'
-								onChange={handleInputChange}
-							/>
-						</div>
-						<input
-							type='text'
-							placeholder='Link'
-							className='flex-1 input border border-gray-700 rounded p-2 input-md'
-							value={formData.link}
-							name='link'
-							onChange={handleInputChange}
-						/>
-						<button className='btn btn-primary rounded-full btn-sm text-white'>
-							{isUpdatingProfile ? "Updating..." : "Update"}
-						</button>
-					</form>
-				</div>
-				<form method='dialog' className='modal-backdrop'>
-					<button className='outline-none'>close</button>
-				</form>
-			</dialog>
-		</>
-	);
+    const openModal = () => {
+        setFormData({
+            fullName: authUser?.fullName || "",
+            username: authUser?.username || "",
+            email: authUser?.email || "",
+            bio: authUser?.bio || "",
+            link: authUser?.link || "",
+            newPassword: "",
+            currentPassword: "",
+        });
+        document.getElementById("edit_profile_modal").showModal();
+    };
+
+    return (
+        <>
+            <button
+                className="btn btn-outline rounded-full btn-sm"
+                onClick={openModal}
+            >
+                Edit profile
+            </button>
+
+            <dialog id="edit_profile_modal" className="modal">
+                <div className="modal-box border border-gray-700 rounded-md">
+                    <h3 className="font-bold text-lg mb-3">Update Profile</h3>
+
+                    <form
+                        className="flex flex-col gap-4"
+                        onSubmit={(e) => {
+                            e.preventDefault();
+                            updateUserProfile(formData);
+                        }}
+                    >
+                        <div className="flex gap-2">
+                            <input
+                                type="text"
+                                name="fullName"
+                                placeholder="Full Name"
+                                className="input input-bordered w-full"
+                                value={formData.fullName}
+                                onChange={handleInputChange}
+                            />
+                            <input
+                                type="text"
+                                name="username"
+                                placeholder="Username"
+                                className="input input-bordered w-full"
+                                value={formData.username}
+                                onChange={handleInputChange}
+                            />
+                        </div>
+
+                        <div className="flex gap-2">
+                            <input
+                                type="email"
+                                name="email"
+                                placeholder="Email"
+                                className="input input-bordered w-full"
+                                value={formData.email}
+                                onChange={handleInputChange}
+                            />
+                            <textarea
+                                name="bio"
+                                placeholder="Bio"
+                                className="textarea textarea-bordered w-full"
+                                value={formData.bio}
+                                onChange={handleInputChange}
+                            />
+                        </div>
+
+                        <div className="flex gap-2">
+                            <input
+                                type="password"
+                                name="currentPassword"
+                                placeholder="Current Password"
+                                className="input input-bordered w-full"
+                                value={formData.currentPassword}
+                                onChange={handleInputChange}
+                            />
+                            <input
+                                type="password"
+                                name="newPassword"
+                                placeholder="New Password"
+                                className="input input-bordered w-full"
+                                value={formData.newPassword}
+                                onChange={handleInputChange}
+                            />
+                        </div>
+
+                        <input
+                            type="text"
+                            name="link"
+                            placeholder="Link"
+                            className="input input-bordered w-full"
+                            value={formData.link}
+                            onChange={handleInputChange}
+                        />
+
+                        <button className="btn btn-primary rounded-full text-white">
+                            {isUpdatingProfile ? (
+                                <LoadingSpinner size="sm" />
+                            ) : (
+                                "Update"
+                            )}
+                        </button>
+                    </form>
+                </div>
+
+                <form method="dialog" className="modal-backdrop">
+                    <button>close</button>
+                </form>
+            </dialog>
+        </>
+    );
 };
+
 export default EditProfileModal;
